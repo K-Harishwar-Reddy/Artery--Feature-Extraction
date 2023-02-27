@@ -8,17 +8,6 @@ def plot_artery_ann(vis, cnt_outer, cnts_mid, cnts_inner):
     cv2.drawContours(vis, cnts_mid, -1, [0, 255, 0], 2)
     cv2.drawContours(vis, cnts_inner, -1, [0, 0, 255], 2)
     return vis
-
-def imshow_two_in_row(arr_0, arr_1): 
-    plt.figure(figsize=(10, 10))    
-    plt.subplot(1, 2, 1)
-    plt.imshow(arr_0, cmap=plt.cm.gray, vmin=0, vmax=255)
-    plt.axis('off')
-    plt.subplot(1, 2, 2)
-    plt.imshow(arr_1, cmap=plt.cm.gray, vmin=0, vmax=255)
-    plt.axis('off')
-    plt.tight_layout()
-    plt.show()
     
 def save_img(img, parent_dir, wsi_id, artery_id):
     dir_save_wsi = os.path.join(parent_dir, wsi_id)
