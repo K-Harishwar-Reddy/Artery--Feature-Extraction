@@ -2,25 +2,10 @@
 # -*- coding: utf-8 -*-
 # import necessary packages
 
-import os
-import time
-import geojson
-import json
-
 import numpy as np
-import pandas as pd
-import scipy
-from scipy import stats
-
 import cv2
-from PIL import Image
-
-import openslide
 import shapely
 import shapely.geometry as shapgeo
-
-import seaborn as sns
-from matplotlib import pyplot as plt
 
 def euclidean(x, y):
     x = np.array(x).reshape(-1, 2).astype("float")
@@ -188,16 +173,17 @@ def measure_thickness(wsi_id, artery_id, outer, middle, inner, vis, angle_width=
         if dist_inner > 0 and dist_outer > 0 and (i == 0): #or i==120 or i==240):
             cv2.line(vis, (int(cx), int(cy)), (int(insec_mid[0]),
                      int(insec_mid[1])), (255, 255, 255), thick_vis)
-            cv2.line(vis, (int(cx), int(cy)), (int(insec_mid_bef[0]),
-                     int(insec_mid_bef[1])), (128, 128, 128), thick_vis)
-            cv2.line(vis, (int(cx), int(cy)), (int(insec_mid_aft[0]),
-                     int(insec_mid_aft[1])), (128, 128, 128), thick_vis)
+#             cv2.line(vis, (int(cx), int(cy)), (int(insec_mid_bef[0]),
+#                      int(insec_mid_bef[1])), (128, 128, 128), thick_vis)
+#             cv2.line(vis, (int(cx), int(cy)), (int(insec_mid_aft[0]),
+#                      int(insec_mid_aft[1])), (128, 128, 128), thick_vis)
             cv2.line(vis, (int(insec_inner[0]), int(insec_inner[1])), 
                      (int(insec_mid[0]), int(insec_mid[1])), 
-                     (255, 255, 0), thick_vis)
+                     (255, 0, 255), thick_vis)
             cv2.line(vis, (int(insec_outer[0]), int(insec_outer[1])), 
                      (int(insec_mid[0]), int(insec_mid[1])), 
                      (0, 255, 255), thick_vis)
+        
             
 #                 # for vis
 #         curr_vis = vis.copy()
@@ -225,11 +211,10 @@ def measure_thickness(wsi_id, artery_id, outer, middle, inner, vis, angle_width=
 #             dist_inner, dist_outer = dist_inner/thickness_wall[i], dist_outer/thickness_wall[i]
 #             cv2.putText(curr_vis, "intima: "+str(format(dist_inner, ".2f")), (8, 22), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 255), 1, cv2.LINE_AA)
 #             cv2.putText(curr_vis, "media: "+str(format(dist_outer, ".2f")), (8, 45), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 255), 1, cv2.LINE_AA)
-#             save_img_helper(curr_vis, wsi_id, artery_id, i//10) 
+#             save_img_animation_helper(curr_vis, wsi_id, artery_id, i//10) 
 #         else:
 #             cv2.line(curr_vis, (int(cx), int(cy)), (int(insec_mid[0]), int(insec_mid[1])), (255, 255, 255), 1) 
 #             cv2.putText(curr_vis, "skip", (8, 22), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1, cv2.LINE_AA)
-#             save_img_helper(curr_vis, wsi_id, artery_id, i//10) 
-# #     return thickness_outer, thickness_inner, thickness_wall
+#             save_img_animation_helper(curr_vis, wsi_id, artery_id, i//10) 
             
     return thickness_outer, thickness_inner, thickness_wall

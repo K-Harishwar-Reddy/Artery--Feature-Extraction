@@ -1,26 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # import necessary packages
-
-import os
-import time
-import geojson
-import json
-
 import numpy as np
-import pandas as pd
-import scipy
-from scipy import stats
-
 import cv2
-from PIL import Image
 
-import openslide
-import shapely
-import shapely.geometry as shapgeo
-
-import seaborn as sns
-from matplotlib import pyplot as plt
+ANN2RGB = {'Media': [[255, 0, 0]], 
+           'Intima': [[102, 128, 230], [77, 102, 204], [49, 136, 235]],
+           'Lumen': [[255, 179, 102], [255, 204, 102]]}
 
 def count_lists(l):
     if not isinstance(l, list):
@@ -29,8 +15,7 @@ def count_lists(l):
     while isinstance(l, list):
         l = l[0]
         count += 1
-    return count
-         
+    return count    
 
 def clean_coord_heper(coords_raw, coords):
     if count_lists(coords_raw) == 2:
@@ -73,10 +58,6 @@ def get_border_of_ann(ann, border=50):
 
     return (xmin-border, xmax+border, ymin-border, ymax+border)
 
-ANN2RGB = {'Media': [[255, 0, 0]], 
-           'Intima': [[102, 128, 230], [77, 102, 204], [49, 136, 235]],
-           'Lumen': [[255, 179, 102], [255, 204, 102]]}
-
 def get_ann_type_by_color(color_rgb):
     for k in ANN2RGB:
         if color_rgb in ANN2RGB[k]:
@@ -114,7 +95,6 @@ def adjust_artery_coords_by_boundry(cnt_outer, cnts_mid, cnts_inner, boundries):
         cnts_inner[i][:, 1] = cnts_inner[i][:, 1] - ymin   
     
     return cnt_outer, cnts_mid, cnts_inner
-    
     
 def get_ann_type(ann_i):
     if "classification" in ann_i["properties"] and "name" in ann_i["properties"]["classification"]:
