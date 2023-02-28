@@ -1,6 +1,7 @@
 import numpy as np
 import scipy
 from scipy import stats
+from matplotlib import pyplot as plt
 
 def plot_hist_w_two_list(thickness_outer, thickness_inner, xlabel, excludes, path_to_svae):
     for val in excludes:
