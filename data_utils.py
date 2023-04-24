@@ -5,8 +5,13 @@ import numpy as np
 import cv2
 
 ANN2RGB = {'Media': [[255, 0, 0]], 
-           'Intima': [[102, 128, 230], [77, 102, 204], [49, 136, 235]],
-           'Lumen': [[255, 179, 102], [255, 204, 102]]}
+           'Intima': [[49, 136, 235]],
+           'Lumen': [[153, 102, 0]]}
+
+# ANN2RGB = {'Media': [[255, 0, 0]], 
+#            'Intima': [[102, 128, 230], [77, 102, 204], [49, 136, 235], [128, 153, 255], [128, 102, 204], 
+#                      [49, 136, 235]],
+#            'Lumen': [[255, 179, 102], [255, 204, 102], [204, 153, 51]]}
 
 def count_lists(l):
     if not isinstance(l, list):
@@ -69,6 +74,12 @@ def cnt_polygon_test(cnt1, cnt2):
         if cv2.pointPolygonTest(cnt2, (int(point[0]), int(point[1])), False) >= 0: return True
     return False
 
+def cnt_polygon_test_2(cnt1, cnt2):
+    # check if cnt1 inside/cross cnt2    
+    for point in cnt1:        
+        if cv2.pointPolygonTest(cnt2, (int(point[0]), int(point[1])), False) < 0: return True
+    return False
+
 def get_cnts_inside(ann, cnt_outer, target):
     cnts_inner_list = []
     for i, ann_i in enumerate(ann):
@@ -99,8 +110,6 @@ def adjust_artery_coords_by_boundry(cnt_outer, cnts_mid, cnts_inner, boundries):
 def get_ann_type(ann_i):
     if "classification" in ann_i["properties"] and "name" in ann_i["properties"]["classification"]:
         return ann_i["properties"]["classification"]["name"]
-    elif "color" in ann_i["properties"]:
-        color_rgb = ann_i["properties"]["color"]
-        return get_ann_type_by_color(color_rgb)
     else:
+        print("STH WRONG")
         return None # noise

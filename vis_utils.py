@@ -2,6 +2,7 @@ import os
 import cv2
 from PIL import Image
 from matplotlib import pyplot as plt
+DIR_SAVE_FIGURE = "/Users/jinzhou/Desktop/USCAP/results/figures"
 
 def plot_artery_ann(vis, cnt_outer, cnts_mid, cnts_inner):
     cv2.drawContours(vis, [cnt_outer], -1, [255, 0, 0], 2)
@@ -36,4 +37,4 @@ def imshow_k_in_row(list_arr):
         plt.imshow(list_arr[i], cmap=plt.cm.gray, vmin=0, vmax=255)
         plt.axis('off')
     plt.tight_layout()
-    plt.show()    
+    plt.show()
