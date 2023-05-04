@@ -20,9 +20,11 @@ def find_insec_line_cnt(point1, point2, poly_contour):
     intersections = poly_contour.intersection(poly_line)    
     return intersections
 
-def find_insec_ray_cnt(start_pt, direction, poly_contour):   
+def find_insec_ray_cnt(start_pt, direction, poly_contour):
+    
     # Find maximum distance from start_pt to any point on poly_contour
     max_distance = 100000
+
     # Get the intersection between ray (start, direction) and poly_contour
     if isinstance(direction, (tuple, list)):
         # Direction can be a vector
@@ -38,7 +40,6 @@ def find_insec_ray_cnt(start_pt, direction, poly_contour):
 
 
 def get_furthest_closest(start_pt, points, metric):
-    
     distances = [np.linalg.norm(point - start_pt) for point in points]
     if metric == 'farthest':
         index = np.argmax(distances)
@@ -53,15 +54,11 @@ def get_points_arr_from_shapgeo_insecs(insecs, start_pt):
     elif isinstance(insecs, shapgeo.LineString):
         # get the point cloest to start point
         points = np.array(insecs.coords).reshape(-1, 2)
-        if points.shape[0] <= 1:
-            return points
-        else:
-            res = get_furthest_closest(start_pt, points, "closest")    
-            return res.reshape(-1, 2)   
-    elif isinstance(insecs, (shapgeo.MultiPoint, shapgeo.MultiLineString, shapgeo.GeometryCollection)):
+        return get_furthest_closest(start_pt, points, "closest")    
+    elif isinstance(insecs, (shapgeo.MultiPoint, shapgeo.GeometryCollection)):
         res = []
-        for x in insecs.geoms:
-            res.append(get_points_arr_from_shapgeo_insecs(x, start_pt))
+        for x in intersections.geoms:
+            res.append(get_points_from_insecs(x, start_pt))
         return np.vstack(res)
     else:
         print(type(insecs))
@@ -69,6 +66,7 @@ def get_points_arr_from_shapgeo_insecs(insecs, start_pt):
 def find_insec_ray_cnt_w_filter(start_pt, direction, poly_contour, metric_if_multiple):
     insecs = find_insec_ray_cnt(start_pt, direction, poly_contour)
     insecs_arr = get_points_arr_from_shapgeo_insecs(insecs, start_pt)
+    
     # If multiple intersection points are found, return the furthest/closest one
     if insecs_arr.shape[0] > 1:
         return get_furthest_closest(start_pt, insecs_arr, metric_if_multiple)
@@ -85,6 +83,7 @@ def get_insec_from_centre_to_poly(start_pt, angle, poly):
     # so change to the other direction
     if insec_point is None:
         insec_point = find_insec_ray_cnt_w_filter(start_pt, (angle + 180) % 360, poly, "closest")
+
     return insec_point
 
 
@@ -98,40 +97,38 @@ def get_perp(point_start, point_end):
     (v_x, v_y) = (v_y, -v_x)
     return (v_x, v_y)
 
-def measure_thickness_per_angle(start_pt, poly_outer, poly_middle, poly_inner, 
-                                angle, angle_width=15, exclude=[], vis=None, dir_save=None):
+def measure_thickness_per_angle(start_pt, poly_outer, poly_middle, poly_inner, angle, angle_width=15, exclude=[]):
     
     # get insec of ray from (cx, cy) w angle and poly_middle
     insec_mid = get_insec_from_centre_to_poly(start_pt, angle, poly_middle)
     insec_mid_bef = get_insec_from_centre_to_poly(start_pt, angle - angle_width, poly_middle)
     insec_mid_aft = get_insec_from_centre_to_poly(start_pt, angle + angle_width, poly_middle)
-#     print(angle, insec_mid, insec_mid_bef, insec_mid_aft)
+    
     # get vector perpendicular to the tangent line
     (vx_outer, vy_outer) = get_perp(insec_mid_bef, insec_mid_aft)
     # insec with outer
+    insec_outer = find_insec_ray_cnt(insec_mid, (vx_outer, vy_outer), poly_outer, "farthest")
     
-    insec_outer = find_insec_ray_cnt_w_filter(insec_mid, (vx_outer, vy_outer), poly_outer, "closest")    
-    if insec_outer is None: # Case of missing values
-        return -1, -1
+    # Case of missing values
+    if len(insec_outer) == 0:
+        return -1, -1, -1
     
     (vx_inner, vy_inner) = get_perp(insec_mid_aft, insec_mid_bef)
     # insec with inner, more than one point should be found, 
-    
-    insec_inner = find_insec_ray_cnt(insec_mid, (vx_inner, vy_inner), poly_inner)
-    insec_inner = get_points_arr_from_shapgeo_insecs(insec_inner, insec_mid)
+    insec_inner = find_insec_helper(insec_mid, (vx_inner, vy_inner), poly_inner)
+    insec_inner = insec_inner.reshape(-1, 2)
     if insec_inner.shape[0] <= 1:
-        return -1, -1
+        return -1, -1, -1
     else:
-        insec_inner = get_furthest_closest(insec_mid, insec_inner, "closest")
+        insec_inner = get_furthest_closest(insec_mid, insec_inner, "closest")            
     
     line_seg_outer = shapgeo.LineString([(insec_mid[0], insec_mid[1]), (insec_outer[0], insec_outer[1])])
     line_seg_inner = shapgeo.LineString([(insec_mid[0], insec_mid[1]), (insec_inner[0], insec_inner[1])])
-    
+    line_seg_ray = shapgeo.LineString([start_pt, (insec_outer_ray[0], insec_outer_ray[1])])
 
     insec_w_others = False
     # get insec of ray from (cx, cy) w angle and poly_middle
     insec_outer_ray = get_insec_from_centre_to_poly(start_pt, angle, poly_outer)
-    line_seg_ray = shapgeo.LineString([start_pt, (insec_outer_ray[0], insec_outer_ray[1])])
     for cnt in exclude:
         insec_seg_ray = shapgeo.LineString(cnt).intersects(line_seg_ray)
         insec_seg_outer = shapgeo.LineString(cnt).intersects(line_seg_outer)
@@ -139,25 +136,10 @@ def measure_thickness_per_angle(start_pt, poly_outer, poly_middle, poly_inner,
         if insec_seg_ray or insec_seg_outer or insec_seg_inner:
             insec_w_others = True
     if insec_w_others:
-        return -3, -3
+        return -3, -3, -3
         
     dist_outer = euclidean(insec_mid, insec_outer) 
     dist_inner = euclidean(insec_mid, insec_inner)
-    
-    if vis is not None and angle%72==0:
-        cv2.line(vis, (int(start_pt[0]), int(start_pt[1])), 
-                 (int(insec_mid[0]), int(insec_mid[1])), 
-                 (128, 128, 0), 1)                
-        cv2.line(vis, (int(insec_inner[0]), int(insec_inner[1])), 
-                 (int(insec_mid[0]), int(insec_mid[1])), 
-                 (255, 0, 255), 1)
-        cv2.line(vis, (int(insec_outer[0]), int(insec_outer[1])), 
-                 (int(insec_mid[0]), int(insec_mid[1])), 
-                 (0, 255, 255), 1)
-        
-        cv2.putText(vis, "intima: "+str(format(dist_inner, ".1f")), (8, 35), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (255, 0, 255), 2, cv2.LINE_AA)
-        cv2.putText(vis, "media: "+str(format(dist_outer, ".1f")), (8, 70), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 255), 2, cv2.LINE_AA)
-        save_img_animation_helper(vis, wsi_id, artery_id, i) 
 
     return dist_outer, dist_inner
 
@@ -168,12 +150,12 @@ def close_cnt(cnt):
     else:
         return np.vstack([cnt, cnt[0]])
 
-def measure_thickness(cnt_outer, cnt_middle, cnt_inner, angle_width=15, exclude=[], vis=None, dir_save=None):
+def measure_thickness(cnt_outer, cnt_middle, cnt_inner, angle_width=15, exclude=[]):
     # Assert contours are closed
-    cnt_outer = close_cnt(cnt_outer)
-    cnt_middle = close_cnt(cnt_middle)
-    cnt_inner = close_cnt(cnt_inner)
-    
+    assert(cnt_outer[-1]==cnt_outer[0])
+    assert(cnt_middle[-1]==cnt_middle[0])
+    assert(cnt_inner[-1]==cnt_inner[0])
+
     # Get the centroid
     cx, cy = get_centroid(cnt_inner)
 
@@ -191,7 +173,7 @@ def measure_thickness(cnt_outer, cnt_middle, cnt_inner, angle_width=15, exclude=
     for (i, angle) in enumerate(angles):
         # Measure thickness per angle
         dist_outer, dist_inner = measure_thickness_per_angle(
-            (cx, cy), poly_outer, poly_middle, poly_inner, angle, angle_width, exclude, vis, dir_save)
+            (cx, cy), poly_outer, poly_middle, poly_inner, angle, angle_width, exclude)
         thickness_outer[i], thickness_inner[i] = dist_outer, dist_inner
 
     return thickness_outer, thickness_inner

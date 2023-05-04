@@ -17,9 +17,8 @@ def save_img(img, parent_dir, wsi_id, artery_id):
     path_to_svae = os.path.join(dir_save_wsi, artery_id+'.png')
     Image.fromarray(img).save(path_to_svae)
     
-def save_img_animation_helper(img, wsi_id, artery_id, sample_id):
+def save_img_animation_helper(img, dir_save_wsi, sample_id):
             
-    dir_save_wsi = os.path.join(DIR_SAVE_FIGURE, wsi_id, artery_id)
     if not os.path.exists(dir_save_wsi):
         os.makedirs(dir_save_wsi)
     if sample_id >= 10:
