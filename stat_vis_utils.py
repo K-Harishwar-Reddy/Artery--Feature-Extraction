@@ -27,7 +27,48 @@ def plot_raw_filter(y_raw, y_filter, y_label):
     lines, labels = ax1.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
     ax2.legend(lines + lines2, labels + labels2, loc=2, fontsize=12)
-
+    plt.show()
+    
+def plot_two_in_one_col(thick_media, thick_intima, y_label=True, p_idx_intima=None, p_idx_media=None, path_to_save=None):
+    
+    ratio = [x/y for x, y in zip(thick_intima, thick_media)]
+    plt.figure(figsize=(10, 5)) 
+    plt.plot([x if x>=0 else None for x in thick_media], label="Media")
+    plt.plot([x if x>=0 else None for x in thick_intima], label="Intima")
+    plt.plot([x if x>=0 else None for x in ratio], label="Intima-Media Ratio")
+    
+    if p_idx_media is not None:
+        plt.scatter(p_idx_media, np.array(thick_media)[p_idx_media], marker="x", s=100)
+    if p_idx_intima is not None:
+        plt.scatter(p_idx_intima, np.array(thick_intima)[p_idx_intima], marker="x", s=100)
+    discard_samples = 0
+    start = None
+    for i, x in enumerate(thick_intima):
+        if x < 0 and start is None:
+            start = i
+        elif x >= 0 and start is not None:
+            discard_samples += 1
+            if discard_samples == 1:
+                plt.axvspan(start, i-1, alpha=0.4, facecolor='gray', label="Discard")
+            else:
+                plt.axvspan(start, i-1, alpha=0.4, facecolor='gray')
+            start = None
+    
+    # If the last chunk of -2 goes until the end of the list
+    if start is not None:
+        plt.axvspan(start, i, alpha=0.4, facecolor='gray')
+     
+    plt.xlabel("Angle", fontsize=20)
+    plt.xticks(np.arange(0, 361, step=120), fontsize=15)
+    if y_label:
+        plt.yticks(ticks=np.arange(0, 1.3, step=0.4), fontsize=15)
+#         plt.yticks(ticks=np.arange(0, 101, step=20), fontsize=15)
+        plt.ylabel("Thickness", fontsize=20)
+        plt.legend(fontsize=20, framealpha=0.5, loc='upper right')
+    else:
+        plt.yticks(ticks=np.arange(0, 1.3, step=0.4), labels=[], fontsize=20)
+    if path_to_save:
+        plt.savefig(path_to_save)
     plt.show()
 
     

@@ -1,6 +1,6 @@
 import numpy as np
 
-def moving_window_remove(list_num, window_size=5, key = None, threshold=1):
+def moving_window_remove(list_num, window_size=10, key = None, threshold=1):
     res = [None]*len(list_num)
     for i in range(len(list_num)):
         win = [list_num[(i - window_size // 2 + j) % len(list_num)] 
@@ -11,7 +11,7 @@ def moving_window_remove(list_num, window_size=5, key = None, threshold=1):
             res[i] = list_num[i]
     return np.array(res)
 
-def moving_window_median(list_num, window_size=5):
+def moving_window_median(list_num, window_size=10):
     res = [None]*len(list_num)
     for i in range(len(list_num)):
         if list_num[i] >= 0:
@@ -23,7 +23,7 @@ def moving_window_median(list_num, window_size=5):
             res[i] = list_num[i]
     return np.array(res)
 
-def moving_window_average(list_num, window_size=5):
+def moving_window_average(list_num, window_size=10):
     res = [None]*len(list_num)
     for i in range(len(list_num)):
         if list_num[i] >= 0:
@@ -35,33 +35,33 @@ def moving_window_average(list_num, window_size=5):
             res[i] = list_num[i]
     return np.array(res)
     
-def process_intersections(thick_media, thick_intima, thick_wall):
-    thick_wall = moving_window_remove(thick_wall, window_size=31, key = -3, threshold=1)
-    thick_media = moving_window_remove(thick_media, window_size=31, key = -3, threshold=1)
-    thick_intima = moving_window_remove(thick_intima, window_size=31, key = -3, threshold=1)
+def process_intersections(thick_media, thick_intima, thick_wall, win_size):
+    thick_wall = moving_window_remove(thick_wall, window_size=win_size, key = -3, threshold=1)
+    thick_media = moving_window_remove(thick_media, window_size=win_size, key = -3, threshold=1)
+    thick_intima = moving_window_remove(thick_intima, window_size=win_size, key = -3, threshold=1)
     return thick_media, thick_intima, thick_wall
 
-def process_open_lumens(thick_media, thick_intima, thick_wall):
+def process_open_lumens(thick_media, thick_intima, thick_wall, win_size):
     clip_th = 0.1*np.percentile([x for x in thick_wall if x>0], 75)
     idx = (thick_wall<clip_th) & (thick_wall >= 0)
     thick_wall[idx] = -2
     thick_media[idx] = -2
     thick_intima[idx] = -2
-    thick_wall = moving_window_remove(thick_wall, window_size=31, key = -2, threshold=5)
-    thick_media = moving_window_remove(thick_media, window_size=31, key = -2, threshold=5)
-    thick_intima = moving_window_remove(thick_intima, window_size=31, key = -2, threshold=5)
+    thick_wall = moving_window_remove(thick_wall, window_size=win_size, key = -2, threshold=5)
+    thick_media = moving_window_remove(thick_media, window_size=win_size, key = -2, threshold=5)
+    thick_intima = moving_window_remove(thick_intima, window_size=win_size, key = -2, threshold=5)
     return thick_media, thick_intima, thick_wall
 
-def process_moving_mediam(thick_media, thick_intima, thick_wall):
-    thick_media = moving_window_median(thick_media, window_size=11)
-    thick_intima = moving_window_median(thick_intima, window_size=11)
-    thick_wall = moving_window_median(thick_wall, window_size=11)
+def process_moving_mediam(thick_media, thick_intima, thick_wall, win_size):
+    thick_media = moving_window_median(thick_media, window_size=win_size)
+    thick_intima = moving_window_median(thick_intima, window_size=win_size)
+    thick_wall = moving_window_median(thick_wall, window_size=win_size)
     return thick_media, thick_intima, thick_wall
 
-def process_moving_average(thick_media, thick_intima, thick_wall):
-    thick_media = moving_window_average(thick_media, window_size=21)
-    thick_intima = moving_window_average(thick_intima, window_size=21)
-    thick_wall = moving_window_average(thick_wall, window_size=21)
+def process_moving_average(thick_media, thick_intima, thick_wall, win_size):
+    thick_media = moving_window_average(thick_media, window_size=win_size)
+    thick_intima = moving_window_average(thick_intima, window_size=win_size)
+    thick_wall = moving_window_average(thick_wall, window_size=win_size)
     return thick_media, thick_intima, thick_wall
 
 def process_impute(thick_media, thick_intima, thick_wall):
@@ -112,11 +112,11 @@ def impute_missing_values(lst):
                 lst[i] = right_val
     return lst
 
-def post_process(thick_media, thick_intima, thick_wall):
-    thick_media, thick_intima, thick_wall = process_intersections(thick_media, thick_intima, thick_wall)
-    thick_media, thick_intima, thick_wall = process_open_lumens(thick_media, thick_intima, thick_wall)
-    thick_media, thick_intima, thick_wall = process_moving_mediam(thick_media, thick_intima, thick_wall)
-    thick_media, thick_intima, thick_wall = process_moving_average(thick_media, thick_intima, thick_wall)    
+def post_process(thick_media, thick_intima, thick_wall, t_multi, t_open_lumen, t_mediam, t_average):
+    thick_media, thick_intima, thick_wall = process_intersections(thick_media, thick_intima, thick_wall, t_multi)
+    thick_media, thick_intima, thick_wall = process_open_lumens(thick_media, thick_intima, thick_wall, t_open_lumen)
+    thick_media, thick_intima, thick_wall = process_moving_mediam(thick_media, thick_intima, thick_wall, t_mediam)
+    thick_media, thick_intima, thick_wall = process_moving_average(thick_media, thick_intima, thick_wall, t_average)    
     thick_media, thick_intima, thick_wall =  process_impute(thick_media, thick_intima, thick_wall)
     thick_media, thick_intima, thick_wall = normalize(thick_media, thick_intima, thick_wall)
     return thick_media, thick_intima, thick_wall

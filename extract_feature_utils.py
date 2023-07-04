@@ -100,6 +100,20 @@ def circular_peaks(data, distance=1, width_threshold=6):
 
 def get_features(l_thick, prefix): 
     dict_features = {}
+    l_thick_valid = [x for x in l_thick if x>=0]
+
+    arr_thick = np.array(l_thick_valid)
+    arr_thick = arr_thick[arr_thick >= 0.1]
+    arr_thick = arr_thick[arr_thick <= 10]
+    dict_features[prefix+" Average"] = np.mean(arr_thick)
+    dict_features[prefix+" Median"] = np.median(arr_thick)
+#     dict_features[prefix+" 90th Percentile"] = np.percentile(arr_thick, 90)
+    dict_features[prefix+" 75th Percentile"] = np.percentile(arr_thick, 75)
+#     dict_features[prefix+" 25th Percentile"] = np.percentile(arr_thick, 25)
+#     dict_features[prefix+" 10 Percentile"] = np.percentile(arr_thick, 10)
+    dict_features[prefix+" Variance"] = np.var(arr_thick)
+#     dict_features[prefix+" Energy"] = loop_energy(l_thick_valid)
+
     peak_indices, peak_properties = circular_peaks(np.array([x if x >=0 else np.nan for x in l_thick]), width_threshold=15)
     if peak_indices is not None:
         dict_features[prefix+" Peak Height"] = np.max(peak_properties["peak_heights"])
@@ -107,19 +121,11 @@ def get_features(l_thick, prefix):
     else:
         dict_features[prefix+" Peak Height"] = 0
         dict_features[prefix+" Peak Prominence"] = 0
-    
-    l_thick_valid = [x for x in l_thick if x>=0]
-
-    arr_thick = np.array(l_thick_valid)
-    dict_features[prefix+" Average"] = np.mean(arr_thick)
-    dict_features[prefix+" Median"] = np.median(arr_thick)
-    dict_features[prefix+" Variance"] = np.var(arr_thick)
-    dict_features[prefix+" Energy"] = loop_energy(l_thick_valid)
     return dict_features
 
 def extract_features(thick_media, thick_intima, thick_wall):
         
-    intima_media_ratio = [y/x if (x > 0 and y > 0) else 0 for x, y in zip(thick_media, thick_intima)]
+    intima_media_ratio = [y/(x+y) if (x > 0 and y > 0) else 0 for x, y in zip(thick_media, thick_intima)]
     
     features_intima = get_features(thick_intima, "Intima")
     features_media = get_features(thick_media, "Media")

@@ -4,15 +4,6 @@
 import numpy as np
 import cv2
 
-ANN2RGB = {'Media': [[255, 0, 0]], 
-           'Intima': [[49, 136, 235]],
-           'Lumen': [[153, 102, 0]]}
-
-# ANN2RGB = {'Media': [[255, 0, 0]], 
-#            'Intima': [[102, 128, 230], [77, 102, 204], [49, 136, 235], [128, 153, 255], [128, 102, 204], 
-#                      [49, 136, 235]],
-#            'Lumen': [[255, 179, 102], [255, 204, 102], [204, 153, 51]]}
-
 def count_lists(l):
     if not isinstance(l, list):
         return 0
@@ -33,6 +24,7 @@ def clean_coord(coords_raw):
     coords_all = []
     clean_coord_heper(coords_raw, coords_all)
     max_length = len(coords_all[0])
+    
     coord_res = coords_all[0]
     for i in range(1, len(coords_all)):
         if len(coords_all[i]) > max_length:
@@ -53,8 +45,8 @@ def get_border_of_ann(ann, border=50):
     (xmin, xmax) = (float('inf'), 0)
     (ymin, ymax) = (float('inf'), 0)
     for (i, ann_i) in enumerate(ann):
-        coords_raw = ann_i['geometry']['coordinates']
-        coords = clean_coord(coords_raw)
+#         coords_raw = ann_i['geometry']['coordinates']
+        coords = ann_i['geometry']['coordinates']
         curr_xmin, curr_xmax, curr_ymin, curr_ymax = get_border_of_cnt(coords)
         xmin = min(xmin, curr_xmin)
         xmax = max(xmax, curr_xmax)
@@ -86,8 +78,7 @@ def get_cnts_inside(ann, cnt_outer, target):
         ann_type = get_ann_type(ann_i)
         if ann_type == target:
             # check if inside or intersec
-            cnt_inner_raw = ann_i["geometry"]["coordinates"]
-            cnt_inner = clean_coord(cnt_inner_raw)
+            cnt_inner = ann_i["geometry"]["coordinates"]
             if cnt_polygon_test(cnt_inner, cnt_outer):
                 cnts_inner_list.append(cnt_inner)
     return cnts_inner_list

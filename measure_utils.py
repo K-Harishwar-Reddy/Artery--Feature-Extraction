@@ -1,6 +1,19 @@
+import os
 import numpy as np
 import shapely.geometry as shapgeo
 import cv2
+from PIL import Image
+from vis_utils import *
+
+def get_cnt_idx_w_largest_area(cnts):
+    max_area = 0
+    max_area_idx = 0
+    for i in range(len(cnts)):
+        curr_area = cv2.contourArea(cnts[i])
+        if curr_area > max_area:
+            max_area = curr_area
+            max_area_idx = i
+    return max_area_idx
 
 def get_centroid(cnt):
     M = cv2.moments(cnt)
@@ -98,6 +111,7 @@ def get_perp(point_start, point_end):
     (v_x, v_y) = (v_y, -v_x)
     return (v_x, v_y)
 
+    
 def measure_thickness_per_angle(start_pt, poly_outer, poly_middle, poly_inner, 
                                 angle, angle_width=15, exclude=[], vis=None, dir_save=None):
     
@@ -105,13 +119,19 @@ def measure_thickness_per_angle(start_pt, poly_outer, poly_middle, poly_inner,
     insec_mid = get_insec_from_centre_to_poly(start_pt, angle, poly_middle)
     insec_mid_bef = get_insec_from_centre_to_poly(start_pt, angle - angle_width, poly_middle)
     insec_mid_aft = get_insec_from_centre_to_poly(start_pt, angle + angle_width, poly_middle)
-#     print(angle, insec_mid, insec_mid_bef, insec_mid_aft)
+    
     # get vector perpendicular to the tangent line
     (vx_outer, vy_outer) = get_perp(insec_mid_bef, insec_mid_aft)
-    # insec with outer
     
+    # insec with outer
     insec_outer = find_insec_ray_cnt_w_filter(insec_mid, (vx_outer, vy_outer), poly_outer, "closest")    
     if insec_outer is None: # Case of missing values
+#         if angle%72!=0: return -1, -1
+#         cv2.line(vis, (int(start_pt[0]), int(start_pt[1])), 
+#                  (int(insec_mid[0]), int(insec_mid[1])), 
+#                  (255, 255, 255), 2)
+#         cv2.putText(vis, "dicard", (8, 35), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (255, 255, 255), 2, cv2.LINE_AA)
+#         save_img_animation_helper(vis, dir_save, angle) 
         return -1, -1
     
     (vx_inner, vy_inner) = get_perp(insec_mid_aft, insec_mid_bef)
@@ -120,6 +140,12 @@ def measure_thickness_per_angle(start_pt, poly_outer, poly_middle, poly_inner,
     insec_inner = find_insec_ray_cnt(insec_mid, (vx_inner, vy_inner), poly_inner)
     insec_inner = get_points_arr_from_shapgeo_insecs(insec_inner, insec_mid)
     if insec_inner.shape[0] <= 1:
+#         if angle%72!=0: return -1, -1
+#         cv2.line(vis, (int(start_pt[0]), int(start_pt[1])), 
+#                  (int(insec_mid[0]), int(insec_mid[1])), 
+#                  (255, 255, 255), 2)
+#         cv2.putText(vis, "dicard", (8, 35), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (255, 255, 255), 2, cv2.LINE_AA)
+#         save_img_animation_helper(vis, dir_save, angle) 
         return -1, -1
     else:
         insec_inner = get_furthest_closest(insec_mid, insec_inner, "closest")
@@ -143,21 +169,36 @@ def measure_thickness_per_angle(start_pt, poly_outer, poly_middle, poly_inner,
         
     dist_outer = euclidean(insec_mid, insec_outer) 
     dist_inner = euclidean(insec_mid, insec_inner)
-    
-    if vis is not None and angle%72==0:
-        cv2.line(vis, (int(start_pt[0]), int(start_pt[1])), 
-                 (int(insec_mid[0]), int(insec_mid[1])), 
-                 (128, 128, 0), 1)                
+#     if dist_inner < 0.1*dist_outer or dist_outer < 0.1*dist_inner:
+#         if angle%72!=0: return -1, -1
+#         cv2.line(vis, (int(start_pt[0]), int(start_pt[1])), 
+#                  (int(insec_mid[0]), int(insec_mid[1])), 
+#                  (255, 255, 255), 2)
+#         cv2.putText(vis, "dicard", (8, 35), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (255, 255, 255), 2, cv2.LINE_AA)
+#         save_img_animation_helper(vis, dir_save, angle) 
+#         return dist_outer, dist_inner
+        
+    if vis is not None and angle%1==0:
+#         cv2.line(vis, (int(start_pt[0]), int(start_pt[1])), 
+#                  (int(insec_mid[0]), int(insec_mid[1])), 
+#                  (255, 255, 255), 2)
+#         cv2.line(vis, (int(start_pt[0]), int(start_pt[1])), 
+#                  (int(insec_mid_bef[0]), int(insec_mid_bef[1])), 
+#                  (128, 128, 128), 2) 
+#         cv2.line(vis, (int(start_pt[0]), int(start_pt[1])), 
+#                  (int(insec_mid_aft[0]), int(insec_mid_aft[1])), 
+#                  (128, 128, 128), 2) 
         cv2.line(vis, (int(insec_inner[0]), int(insec_inner[1])), 
                  (int(insec_mid[0]), int(insec_mid[1])), 
-                 (255, 0, 255), 1)
+                 (255, 0, 255), 2)
         cv2.line(vis, (int(insec_outer[0]), int(insec_outer[1])), 
                  (int(insec_mid[0]), int(insec_mid[1])), 
-                 (0, 255, 255), 1)
+                 (0, 255, 255), 2)
         
-        cv2.putText(vis, "intima: "+str(format(dist_inner, ".1f")), (8, 35), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (255, 0, 255), 2, cv2.LINE_AA)
-        cv2.putText(vis, "media: "+str(format(dist_outer, ".1f")), (8, 70), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 255), 2, cv2.LINE_AA)
-        save_img_animation_helper(vis, wsi_id, artery_id, i) 
+
+#         cv2.putText(vis, "intima: "+str(format(dist_inner, ".1f")), (250, 35), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (255, 0, 255), 2, cv2.LINE_AA)
+#         cv2.putText(vis, "media: "+str(format(dist_outer, ".1f")), (250, 70), cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 255, 255), 2, cv2.LINE_AA)
+#         save_img_animation_helper(vis, dir_save, angle) 
 
     return dist_outer, dist_inner
 
@@ -190,6 +231,10 @@ def measure_thickness(cnt_outer, cnt_middle, cnt_inner, angle_width=15, exclude=
 
     for (i, angle) in enumerate(angles):
         # Measure thickness per angle
+#         if vis is not None:
+#             vis_angle = vis.copy()
+#         else:
+#             vis_angle = None
         dist_outer, dist_inner = measure_thickness_per_angle(
             (cx, cy), poly_outer, poly_middle, poly_inner, angle, angle_width, exclude, vis, dir_save)
         thickness_outer[i], thickness_inner[i] = dist_outer, dist_inner
