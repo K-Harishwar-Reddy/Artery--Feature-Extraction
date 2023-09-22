@@ -86,7 +86,7 @@ def plot_hist_w_two_list(thickness_outer, thickness_inner, xlabel, path_to_svae)
     plt.xticks(np.arange(0, max_val+0.1, step=0.2), fontsize=15)
     plt.yticks(np.arange(0, 0.31, step=0.05), fontsize=15)
     plt.xlabel(xlabel, fontsize=20)
-    plt.ylabel("Probability", fontsize=20)
+    plt.ylabel("Thickness", fontsize=20)
     plt.legend(loc='upper right', ncol=1, fontsize=20)
     if path_to_svae:
         plt.savefig(path_to_svae)

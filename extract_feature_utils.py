@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.signal import find_peaks
 from post_process_utils import *
-
+from scipy.stats import skew
 
 def loop_energy(loop):
     energy = 0
@@ -103,15 +103,17 @@ def get_features(l_thick, prefix):
     l_thick_valid = [x for x in l_thick if x>=0]
 
     arr_thick = np.array(l_thick_valid)
-    arr_thick = arr_thick[arr_thick >= 0.1]
-    arr_thick = arr_thick[arr_thick <= 10]
+    if prefix == "Ratio":
+        arr_thick = arr_thick[arr_thick >= 0.05]
+        arr_thick = arr_thick[arr_thick <= 20]
     dict_features[prefix+" Average"] = np.mean(arr_thick)
     dict_features[prefix+" Median"] = np.median(arr_thick)
 #     dict_features[prefix+" 90th Percentile"] = np.percentile(arr_thick, 90)
-    dict_features[prefix+" 75th Percentile"] = np.percentile(arr_thick, 75)
+#     dict_features[prefix+" 75th Percentile"] = np.percentile(arr_thick, 75)
 #     dict_features[prefix+" 25th Percentile"] = np.percentile(arr_thick, 25)
 #     dict_features[prefix+" 10 Percentile"] = np.percentile(arr_thick, 10)
     dict_features[prefix+" Variance"] = np.var(arr_thick)
+#     dict_features[prefix+" Skewness"] = skew(arr_thick)
 #     dict_features[prefix+" Energy"] = loop_energy(l_thick_valid)
 
     peak_indices, peak_properties = circular_peaks(np.array([x if x >=0 else np.nan for x in l_thick]), width_threshold=15)

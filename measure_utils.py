@@ -44,6 +44,7 @@ def find_insec_ray_cnt(start_pt, direction, poly_contour):
         # Direction can be an angle (in degrees)
         angle = direction / 180 * np.pi
         vx, vy = np.cos(angle), np.sin(angle)
+     
     
     x = int(vx * max_distance + start_pt[0])
     y = int(vy * max_distance + start_pt[1])
@@ -124,6 +125,7 @@ def measure_thickness_per_angle(start_pt, poly_outer, poly_middle, poly_inner,
     (vx_outer, vy_outer) = get_perp(insec_mid_bef, insec_mid_aft)
     
     # insec with outer
+#     print(start_pt, insec_mid)
     insec_outer = find_insec_ray_cnt_w_filter(insec_mid, (vx_outer, vy_outer), poly_outer, "closest")    
     if insec_outer is None: # Case of missing values
 #         if angle%72!=0: return -1, -1
@@ -217,6 +219,9 @@ def measure_thickness(cnt_outer, cnt_middle, cnt_inner, angle_width=15, exclude=
     
     # Get the centroid
     cx, cy = get_centroid(cnt_inner)
+    if abs(cv2.pointPolygonTest(cnt_middle, (cx,cy), True)) < 1:
+        while abs(cv2.pointPolygonTest(cnt_middle, (cx,cy), True)) < 1:
+            cx, cy = cx-1, cy
 
     # Set up angles (in degrees)
     angles = np.arange(0, 360, 1)

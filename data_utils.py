@@ -66,11 +66,11 @@ def cnt_polygon_test(cnt1, cnt2):
         if cv2.pointPolygonTest(cnt2, (int(point[0]), int(point[1])), False) >= 0: return True
     return False
 
-def cnt_polygon_test_2(cnt1, cnt2):
-    # check if cnt1 inside/cross cnt2    
-    for point in cnt1:        
-        if cv2.pointPolygonTest(cnt2, (int(point[0]), int(point[1])), False) < 0: return True
-    return False
+# def cnt_polygon_test_2(cnt1, cnt2):
+#     # check if cnt1 inside/cross cnt2    
+#     for point in cnt1:        
+#         if cv2.pointPolygonTest(cnt2, (int(point[0]), int(point[1])), False) < 0: return True
+#     return False
 
 def get_cnts_inside(ann, cnt_outer, target):
     cnts_inner_list = []
