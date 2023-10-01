@@ -29,6 +29,26 @@ def plot_raw_filter(y_raw, y_filter, y_label):
     ax2.legend(lines + lines2, labels + labels2, loc=2, fontsize=12)
     plt.show()
     
+    
+def plot_local_peaks(thick_media, thick_intima, thick_ratio, p_idx_intima, p_idx_media, p_idx_ratio):
+    plt.figure(figsize=(10, 5)) 
+    color_intima, color_media, color_ratio = "#800080", "#008080", "#808000"
+    
+    plt.plot([x if x>=0 else None for x in thick_intima], color=color_intima, label="Intima")
+    plt.plot([x if x>=0 else None for x in thick_media], color=color_media, label="Media")
+    plt.plot([x if x>=0 else None for x in thick_ratio], color=color_ratio, label="Intima-Media Ratio")
+    
+    plt.scatter(p_idx_intima, np.array(thick_intima)[p_idx_intima], color=color_intima, marker="x", s=100)
+    plt.scatter(p_idx_media, np.array(thick_media)[p_idx_media], color=color_media, marker="x", s=100)
+    plt.scatter(p_idx_ratio, np.array(thick_ratio)[p_idx_ratio], color=color_ratio, marker="x", s=100)
+    
+    plt.xlabel("Angle", fontsize=20)
+    plt.ylabel("Measurements", fontsize=20)
+    plt.xticks(np.arange(0, 361, step=120), fontsize=15)
+    plt.legend(fontsize=20, framealpha=0.5, loc='upper right')
+    plt.show()
+
+    
 def plot_two_in_one_col(thick_media, thick_intima, y_label=True, p_idx_intima=None, p_idx_media=None, path_to_save=None):
     
     ratio = [x/y for x, y in zip(thick_intima, thick_media)]
@@ -36,7 +56,7 @@ def plot_two_in_one_col(thick_media, thick_intima, y_label=True, p_idx_intima=No
     plt.plot([x if x>=0 else None for x in thick_media], label="Media")
     plt.plot([x if x>=0 else None for x in thick_intima], label="Intima")
     plt.plot([x if x>=0 else None for x in ratio], label="Intima-Media Ratio")
-    
+        
     if p_idx_media is not None:
         plt.scatter(p_idx_media, np.array(thick_media)[p_idx_media], marker="x", s=100)
     if p_idx_intima is not None:

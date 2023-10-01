@@ -77,11 +77,6 @@ def normalize(thick_media, thick_intima, thick_wall):
     thick_wall = [x/base if x >=0 else x for x in thick_wall]
     return thick_media, thick_intima, thick_wall
 
-def calculate_intima_media_ratio(thick_media, thick_intima):
-    res = [y/x if (x > 0 and y > 0) else 0 for x, y in zip(thick_media, thick_intima)]
-    
-    return res
-
 def find_closest_non_missing(lst, idx, direction):
     if direction == "left":
         step = -1
@@ -112,11 +107,12 @@ def impute_missing_values(lst):
                 lst[i] = right_val
     return lst
 
-def post_process(thick_media, thick_intima, thick_wall, t_multi, t_open_lumen, t_mediam, t_average):
+def post_process(thick_media, thick_intima, thick_wall, t_multi=11, t_open_lumen=11, t_mediam=11, t_average=11):
     thick_media, thick_intima, thick_wall = process_intersections(thick_media, thick_intima, thick_wall, t_multi)
     thick_media, thick_intima, thick_wall = process_open_lumens(thick_media, thick_intima, thick_wall, t_open_lumen)
     thick_media, thick_intima, thick_wall = process_moving_mediam(thick_media, thick_intima, thick_wall, t_mediam)
     thick_media, thick_intima, thick_wall = process_moving_average(thick_media, thick_intima, thick_wall, t_average)    
-    thick_media, thick_intima, thick_wall =  process_impute(thick_media, thick_intima, thick_wall)
+    thick_media, thick_intima, thick_wall = process_impute(thick_media, thick_intima, thick_wall)
     thick_media, thick_intima, thick_wall = normalize(thick_media, thick_intima, thick_wall)
-    return thick_media, thick_intima, thick_wall
+    thick_ratio = [y/(x+y) if (x > 0 and y > 0) else 0 for x, y in zip(thick_media, thick_intima)]
+    return thick_media, thick_intima, thick_ratio

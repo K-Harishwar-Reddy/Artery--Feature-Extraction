@@ -1,36 +1,6 @@
 import numpy as np
 from scipy.signal import find_peaks
-from post_process_utils import *
 from scipy.stats import skew
-
-def loop_energy(loop):
-    energy = 0
-    for i in range(len(loop) - 1):
-        energy += (loop[i+1] - loop[i])**2
-    energy += (loop[0] - loop[-1])**2  # Include the difference between the first and last elements
-    return energy
-
-
-def loop_entropy(loop, num_bins=10):
-    min_value = min(loop)
-    max_value = max(loop)
-    
-    # Bin the continuous values into discrete intervals
-    bin_edges = np.linspace(min_value, max_value, num_bins + 1)
-    binned_values = np.digitize(loop, bin_edges)
-
-    # Count the frequency of each bin
-    element_counts = {}
-    for element in binned_values:
-        element_counts[element] = element_counts.get(element, 0) + 1
-
-    # Calculate the entropy
-    entropy = 0
-    for count in element_counts.values():
-        probability = count / len(loop)
-        entropy -= probability * math.log2(probability)
-    return entropy
-
 
 def get_peak_prominences(data, peak_indices):
     n = len(data)
@@ -108,30 +78,25 @@ def get_features(l_thick, prefix):
         arr_thick = arr_thick[arr_thick <= 20]
     dict_features[prefix+" Average"] = np.mean(arr_thick)
     dict_features[prefix+" Median"] = np.median(arr_thick)
-#     dict_features[prefix+" 90th Percentile"] = np.percentile(arr_thick, 90)
-#     dict_features[prefix+" 75th Percentile"] = np.percentile(arr_thick, 75)
-#     dict_features[prefix+" 25th Percentile"] = np.percentile(arr_thick, 25)
-#     dict_features[prefix+" 10 Percentile"] = np.percentile(arr_thick, 10)
     dict_features[prefix+" Variance"] = np.var(arr_thick)
-#     dict_features[prefix+" Skewness"] = skew(arr_thick)
-#     dict_features[prefix+" Energy"] = loop_energy(l_thick_valid)
 
     peak_indices, peak_properties = circular_peaks(np.array([x if x >=0 else np.nan for x in l_thick]), width_threshold=15)
     if peak_indices is not None:
+        dict_features["Vis "+prefix+" Peak Indice"] = peak_indices[np.argmax(peak_properties["peak_heights"])]
         dict_features[prefix+" Peak Height"] = np.max(peak_properties["peak_heights"])
         dict_features[prefix+" Peak Prominence"] = np.max(peak_properties["prominences"])
     else:
+        dict_features["Vis "+prefix+" Peak Indice"] = None
         dict_features[prefix+" Peak Height"] = 0
         dict_features[prefix+" Peak Prominence"] = 0
     return dict_features
 
-def extract_features(thick_media, thick_intima, thick_wall):
-        
-    intima_media_ratio = [y/(x+y) if (x > 0 and y > 0) else 0 for x, y in zip(thick_media, thick_intima)]
+
+def extract_features(thick_media, thick_intima, thick_ratio):
     
     features_intima = get_features(thick_intima, "Intima")
     features_media = get_features(thick_media, "Media")
-    features_ratio = get_features(intima_media_ratio, "Ratio")
+    features_ratio = get_features(thick_ratio, "Ratio")
     
     return features_intima, features_media, features_ratio
     
