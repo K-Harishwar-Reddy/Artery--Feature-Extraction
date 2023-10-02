@@ -13,14 +13,14 @@ def plot_raw_filter(y_raw, y_filter, y_label):
     ax1.plot(t, y_raw_signal, color=color, label="Raw")
     for i, x in enumerate(idx_none):
         if i == 0:
-            ax1.axvline(x=x,  linestyle="--", color="red", label="Missing")
+            ax1.axvline(x=x,  linestyle="--", color="gray", alpha=0.5, label="Missing")
         else:
-            ax1.axvline(x=x,  linestyle="--", color="red")
+            ax1.axvline(x=x,  linestyle="--", color="gray", alpha=0.5)
 
     ax1.tick_params(axis='y', labelcolor=color, labelsize=12)
     ax2 = ax1.twinx()
     color = 'darkorange'
-    ax2.plot(t, y_filter, color=color, label="Filtered")
+    ax2.plot(t, y_filter, color=color, label="Processed")
     
     ax2.tick_params(axis='y', labelcolor=color, labelsize=12)
     ax2.tick_params(axis='x', labelsize=12)

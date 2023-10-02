@@ -128,7 +128,7 @@ def measure_thickness_per_angle(start_pt, angle, poly_outer, poly_middle, poly_i
                                 angle_width=15, exclude=[], vis=None, dir_parent="."):
     
     wsi_artery_id = wsi_id+"_"+artery_id
-    if wsi_artery_id in WSI_ARTERY_ID_FIGURE_MEASUREMENT:
+    if wsi_artery_id in WSI_ARTERY_ID_FIGURE_MEASUREMENT and angle%70==0:
         vis = vis.copy()
         path_to_save = os.path.join(dir_parent, wsi_id, artery_id, wsi_id+"_"+artery_id+"_"+str(angle).zfill(3)+".png")
     
@@ -143,7 +143,7 @@ def measure_thickness_per_angle(start_pt, angle, poly_outer, poly_middle, poly_i
     # insec with outer
     insec_outer = find_insec_ray_cnt_w_filter(insec_mid, (vx_outer, vy_outer), poly_outer, "closest")    
     if insec_outer is None: # Case of missing values
-        if wsi_artery_id in WSI_ARTERY_ID_FIGURE_MEASUREMENT:
+        if wsi_artery_id in WSI_ARTERY_ID_FIGURE_MEASUREMENT and angle%70==0:
             vis_angle_discarded(vis, start_pt, insec_mid, path_to_save)
         if wsi_artery_id in WSI_ARTERY_ID_FIGURE_MISSING_VAL:
             vis_angle_missing(vis, start_pt, insec_mid)
@@ -154,7 +154,7 @@ def measure_thickness_per_angle(start_pt, angle, poly_outer, poly_middle, poly_i
     insec_inner = find_insec_ray_cnt(insec_mid, (vx_inner, vy_inner), poly_inner)
     insec_inner = get_points_arr_from_shapgeo_insecs(insec_inner, insec_mid)
     if insec_inner.shape[0] <= 1:
-        if wsi_artery_id in WSI_ARTERY_ID_FIGURE_MEASUREMENT:
+        if wsi_artery_id in WSI_ARTERY_ID_FIGURE_MEASUREMENT and angle%70==0:
             vis_angle_discarded(vis, start_pt, insec_mid, path_to_save)
         if wsi_artery_id in WSI_ARTERY_ID_FIGURE_MISSING_VAL:
             vis_angle_missing(vis, start_pt, insec_mid)
@@ -176,14 +176,14 @@ def measure_thickness_per_angle(start_pt, angle, poly_outer, poly_middle, poly_i
         if insec_seg_ray or insec_seg_outer or insec_seg_inner:
             insec_w_others = True
     if insec_w_others:
-        if wsi_artery_id in WSI_ARTERY_ID_FIGURE_MEASUREMENT:
+        if wsi_artery_id in WSI_ARTERY_ID_FIGURE_MEASUREMENT and angle%70==0:
             vis_angle_discarded(vis, start_pt, insec_mid, path_to_save)
         return -3, -3
         
     dist_outer = euclidean(insec_mid, insec_outer) 
     dist_inner = euclidean(insec_mid, insec_inner)
         
-    if wsi_artery_id in WSI_ARTERY_ID_FIGURE_MEASUREMENT:
+    if wsi_artery_id in WSI_ARTERY_ID_FIGURE_MEASUREMENT and angle%70==0:
         vis_angle_measurement(vis, start_pt, 
                           insec_inner, insec_mid, insec_outer, 
                           insec_mid_bef, insec_mid_aft, 

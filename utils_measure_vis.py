@@ -10,13 +10,13 @@ def draw_line(image, start, end, color, thickness=2):
                     (int(end[0]), int(end[1])), 
                     color, thickness)
 
-def draw_text(image, text, position, font=cv2.FONT_HERSHEY_SIMPLEX, scale=1.2, color=(255, 255, 255), thickness=2, line_type=cv2.LINE_AA):
+def draw_text(image, text, position, font=cv2.FONT_HERSHEY_SIMPLEX, scale=0.8, color=(255, 255, 255), thickness=2, line_type=cv2.LINE_AA):
     """Utility function to draw text on the image."""
     cv2.putText(image, text, position, font, scale, color, thickness, line_type)
 
 def vis_angle_discarded(vis, start_pt, insec_mid, path_to_save):
     draw_line(vis, start_pt, insec_mid, (255, 255, 255))    
-    draw_text(vis, "discard", (10, 35))
+    draw_text(vis, "discard", (10, 27))
     save_img_helper(vis, path_to_save)
 
 def vis_angle_measurement(vis, start_pt, 
@@ -29,8 +29,8 @@ def vis_angle_measurement(vis, start_pt,
     draw_line(vis, insec_inner, insec_mid, (255, 0, 255))
     draw_line(vis, insec_outer, insec_mid, (0, 255, 255))
 
-    draw_text(vis, "intima: " + str(format(dist_inner, ".1f")), (10, 35), color=(255, 0, 255))
-    draw_text(vis, "media: " + str(format(dist_outer, ".1f")), (10, 70), color=(0, 255, 255))
+    draw_text(vis, "intima: " + str(format(dist_inner, ".1f")), (10, 27), color=(255, 0, 255))
+    draw_text(vis, "media: " + str(format(dist_outer, ".1f")), (10, 54), color=(0, 255, 255))
     save_img_helper(vis, path_to_save)
     
 def vis_angle_missing(vis, start_pt, insec_mid):
