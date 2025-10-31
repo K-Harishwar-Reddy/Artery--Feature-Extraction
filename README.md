@@ -1,10 +1,10 @@
- Artery Feature Extraction Pipeline
+### Artery Feature Extraction Pipeline
 
 This repository provides a fully automated pipeline to measure arterial wall thickness (intima & media) and compute derived morphometric features from histology whole-slide images (WSIs) and their corresponding GeoJSON annotations.
 
 It reads artery‐specific annotations (media, intima, lumen contours), computes per-artery thickness maps, area fractions, and intima-to-media ratios, and saves per-artery feature summaries in CSV and JSON formats.
 
-Overview
+### Overview
 
 | Component             | Description                                                                                                                              |
 | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
@@ -13,7 +13,7 @@ Overview
 | **Outputs**           | JSON file (`thickness.json`) with raw measurements, and CSV file (`artery_features_no_labels.csv`) with aggregated morphometric features |
 | **Visualization**     | Overlay figures saved under `results/figures/`                                                                                           |
 
-Directory Structure
+### Directory Structure
 
 artery_thickness/
 ├── artery_analysis.py           # Main CLI script (this file)
@@ -28,7 +28,7 @@ artery_thickness/
     └── figures/                 # Visualization outputs
 
 
-Usage
+### Usage
 
 You can run the pipeline with a single command using the CLI interface.
 
@@ -39,7 +39,7 @@ python artery_analysis.py \
   --save_dir /path/to/save/results
 
 
-Output Files
+### Output Files
 | File                                | Description                                                            |
 | ----------------------------------- | ---------------------------------------------------------------------- |
 | **`thickness.json`**                | Raw artery-level thickness and area measurements (per artery per WSI). |
@@ -67,7 +67,7 @@ It uses nested bullet points, consistent tense, and Markdown formatting that ren
 
 ---
 
-### 🧮 Computation Flow
+### Computation Flow
 
 The artery wall thickness analysis pipeline proceeds through the following stages:
 
