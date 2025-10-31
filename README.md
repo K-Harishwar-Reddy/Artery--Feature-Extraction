@@ -19,7 +19,7 @@ It reads artery‐specific annotations (media, intima, lumen contours), computes
 artery_thickness/
 ├── artery_analysis.py           # Main CLI script (this file)
 ├── helper.py                    # Supporting geometry & analysis utilities
-├── requirements.txt             # Optional dependency list
+├── environment.yml             # Optional dependency list
 ├── data/
 │   ├── wsi/                     # Input WSIs (.svs/.ndpi)
 │   └── ann_geojson/             # Corresponding annotation files (.geojson)
