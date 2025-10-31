@@ -15,6 +15,7 @@ It reads artery‐specific annotations (media, intima, lumen contours), computes
 
 ### Directory Structure
 
+```
 artery_thickness/
 ├── artery_analysis.py           # Main CLI script (this file)
 ├── helper.py                    # Supporting geometry & analysis utilities
@@ -27,6 +28,7 @@ artery_thickness/
     ├── artery_features_no_labels.csv  # Aggregated feature summary
     └── figures/                 # Visualization outputs
 
+```
 
 ### Usage
 
