@@ -109,14 +109,14 @@ The artery wall thickness analysis pipeline proceeds through the following stage
 
 Would you like me to also format the next section (“Output Files”) in the same polished GitHub style for consistency?
 
-
+```
 Author
 
 Harishwar Reddy Kasireddy
 Ph.D. Student, Electrical & Computer Engineering
 University of Florida — Sarder Lab (Computational Pathology)
 harishwarreddy.k@ufl.edu
-
+```
 
 ## Relation to Prior Work
 
