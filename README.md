@@ -64,9 +64,6 @@ Each row in the CSV corresponds to a unique (WSI_ID, Artery_ID) pair, including 
 | `Lumen Area Frac`         | Fraction of total artery area occupied by lumen  |
 
 
-Absolutely 👍 — here’s a **clean, polished version** of your *Computation Flow* section, formatted properly for a **GitHub README.md**.
-It uses nested bullet points, consistent tense, and Markdown formatting that renders nicely on GitHub:
-
 ---
 
 ### Computation Flow
@@ -107,8 +104,6 @@ The artery wall thickness analysis pipeline proceeds through the following stage
 
 ---
 
-Would you like me to also format the next section (“Output Files”) in the same polished GitHub style for consistency?
-
 ```
 Author
 
@@ -123,3 +118,5 @@ harishwarreddy.k@ufl.edu
 This repository is a **re-implementation (engineering reproduction)** of the core measurement pipeline described in:
 
 > **Zhou J., Li X., Demeke D., Dinh T.A., et al.** “Characterization of arteriosclerosis based on computer-aided measurements of intra-arterial intima-media thickness.” *Journal of Medical Imaging* 11(5):057501, 2024. doi:10.1117/1.JMI.11.5.057501. ([ResearchGate][1])
+
+and a modularized version of this reposiotry https://github.com/code-by-jin/Measurements-of-Intra-Arterial-Thickness.git
